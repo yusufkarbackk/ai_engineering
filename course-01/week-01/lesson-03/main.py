@@ -69,13 +69,14 @@ def filter_requests(requests, condition):
         if condition(request):
             filtered_requests.append(request)
 
+    return filtered_requests
 
 def process_requests(requests):
     dataset_with_tokens = list(map(add_total_tokens, requests))
 
-    fast_requests = list(filter(is_fast_request, dataset_with_tokens))
+    fast_requests = list(filter_requests(is_fast_request, dataset_with_tokens))
 
-    open_ai_requests = list(filter(is_openai_request, fast_requests))
+    open_ai_requests = list(filter_requests(is_openai_request, fast_requests))
     print(open_ai_requests)
 
 
