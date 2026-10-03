@@ -42,7 +42,7 @@ def calculate_total_token(input_tokens, output_tokens):
 
 
 def add_total_tokens(request):
-    new_request = llm_requests.copy()
+    new_request = request.copy()
 
     new_request["total_tokens"] = request["input_tokens"] + request["output_tokens"]
 
@@ -64,7 +64,9 @@ def is_openai_request(request):
 
 
 def filter_requests(requests, condition):
-    return condition(requests)
+    filtered_requests = []
+    for request in requests:
+        filter_requests.append(condition(request))
 
 
 def process_requests(requests):
@@ -74,3 +76,6 @@ def process_requests(requests):
 
     open_ai_requests = list(filter(is_openai_request, fast_requests))
     print(open_ai_requests)
+
+
+process_requests(llm_requests)
