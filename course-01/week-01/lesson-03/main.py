@@ -66,7 +66,8 @@ def is_openai_request(request):
 def filter_requests(requests, condition):
     filtered_requests = []
     for request in requests:
-        filter_requests.append(condition(request))
+        if condition(request):
+            filtered_requests.append(request)
 
 
 def process_requests(requests):
