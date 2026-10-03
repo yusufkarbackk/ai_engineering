@@ -40,22 +40,37 @@ llm_requests = [
 def calculate_total_token(input_tokens, output_tokens):
     return input_tokens + output_tokens
 
+
 def add_total_tokens(request):
     new_request = llm_requests.copy()
-    
-    new_request['total_tokens'] = (new_request['input_tokens'] + new_request['output_tokens'])
-    
+
+    new_request["total_tokens"] = request["input_tokens"] + request["output_tokens"]
+
     return new_request
 
 
-dataset_with_tokens = list(
-    map(add_total_tokens, llm_requests)
-)
-
 def is_fast_request(request):
-    return request['latency'] < 1.5
+    return request["latency"] < 1.5
 
 
-fast_requests = filter(
-    is_fast_request, llm_requests
-)
+# fast_requests = filter(is_fast_request, llm_requests)
+
+
+def is_openai_request(request):
+    return request["provider"] == "openai"
+
+
+# open_ai_requests = filter(is_openai_request, llm_requests)
+
+
+def filter_requests(requests, condition):
+    return condition(requests)
+
+
+def process_requests(requests):
+    dataset_with_tokens = list(map(add_total_tokens, requests))
+
+    fast_requests = list(filter(is_fast_request, dataset_with_tokens))
+
+    open_ai_requests = list(filter(is_openai_request, fast_requests))
+    print(open_ai_requests)
