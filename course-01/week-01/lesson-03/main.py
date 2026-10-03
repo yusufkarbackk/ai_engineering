@@ -63,7 +63,7 @@ def is_openai_request(request):
 # open_ai_requests = filter(is_openai_request, llm_requests)
 
 
-def filter_requests(requests, condition):
+def filter_requests(condition, requests):
     filtered_requests = []
     for request in requests:
         if condition(request):
