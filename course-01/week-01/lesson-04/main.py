@@ -1,6 +1,8 @@
 import logging
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 llm_requests = [
     {
         "model": "gpt-5",
@@ -78,7 +80,7 @@ def validate_request(request):
         valid_request += 1
         return True
     else:
-        logger.error("invalid request")
+        logger.warning("invalid request")
         invalid_request += 1
         return False
 
@@ -94,20 +96,20 @@ def get_total_tokens(request):
         logger.error("error key error")
         return None
     except TypeError:
-        logger.error("error key error")
+        logger.error("error type error")
         return None
 
 
 def validate_latency(latency):
     if latency < 0:
         logger.error("latency tidak valid")
-        raise InvalidLLMRequestError("Latency cannot be negative.")
+        raise ValueError("Latency cannot be negative.")
     return True
 
 
 def process_request(request):
-    validate_request(request)
-    get_total_tokens(request)
+    if valid_request(request):
+        get_total_tokens(request)
 
 
 def process_requests(requests):
@@ -115,14 +117,17 @@ def process_requests(requests):
     global invalid_request
     total_requests = len(llm_requests)
 
-    for request in requests:
-        process_request(request)
+    try:
+        for request in requests:
+            process_request(request)
 
-    print(f"total requests:  {total_requests}")
-    print(f"valid request: {valid_request}")
-    print(f"invalid request: {invalid_request}")
-    
-    
+        print(f"total requests:  {total_requests}")
+        print(f"valid request: {valid_request}")
+        print(f"invalid request: {invalid_request}")
+    except:
+        raise ValueError("request error")
+    finally:
+        print("proses sudah selesai")
 
 
 process_requests(llm_requests)
