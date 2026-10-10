@@ -108,8 +108,11 @@ def validate_latency(latency):
 
 
 def process_request(request):
-    if valid_request(request):
+    if validate_request(request):
         get_total_tokens(request)
+    else:
+        logger.warning("invalid request")
+        return None
 
 
 def process_requests(requests):
@@ -124,6 +127,7 @@ def process_requests(requests):
         print(f"total requests:  {total_requests}")
         print(f"valid request: {valid_request}")
         print(f"invalid request: {invalid_request}")
+        print(f"total token processed: {total_token_processed}")
     except:
         raise ValueError("request error")
     finally:
