@@ -51,9 +51,9 @@ llm_requests = [
 ]
 
 
-total_token_processed = 0
-valid_request = 0
-invalid_request = 0
+# total_token_processed = 0
+# valid_request = 0
+# invalid_request = 0
 
 
 class InvalidLLMRequestError(Exception):
@@ -74,7 +74,6 @@ def validate_request(request):
         and (type(request["latency"]) == int or type(request["latency"]) == float)
         and request["input_tokens"] >= 0
         and request["output_tokens"] >= 0
-        and request["latency"] >= 0
     ):
         logger.info("request valid")
         valid_request += 1
@@ -86,12 +85,12 @@ def validate_request(request):
 
 
 def get_total_tokens(request):
-    global total_token_processed
+    total_token_processed = 0
     try:
         logger.info("total tokens valid")
         total_tokens = request["input_tokens"] + request["output_tokens"]
         total_token_processed += total_tokens
-        return total_tokens
+        return total_token_processed
     except KeyError:
         logger.error("error key error")
         return None
@@ -119,22 +118,23 @@ def process_request(request):
 
 
 def process_requests(requests):
-    global valid_request
-    global invalid_request
+    total_token_processed = 0
+    valid_request = 0
+    invalid_request = 0
     total_requests = len(requests)
 
-    try:
-        for request in requests:
-            process_request(request)
+    for request in requests:
+        try:
+            total_token_processed += process_request(request)
+            valid_request += 1
+        except InvalidLLMRequestError:
+            invalid_request += 1
+            logger.warning("invalid request")
 
-        print(f"total requests:  {total_requests}")
-        print(f"valid request: {valid_request}")
-        print(f"invalid request: {invalid_request}")
-        print(f"total token processed: {total_token_processed}")
-    except InvalidLLMRequestError:
-        raise InvalidLLMRequestError("request error")
-    finally:
-        logger.info("proses sudah selesai")
+    print(f"total requests:  {total_requests}")
+    print(f"valid request: {valid_request}")
+    print(f"invalid request: {invalid_request}")
+    print(f"total token processed: {total_token_processed}")
 
 
 process_requests(llm_requests)
