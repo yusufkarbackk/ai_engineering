@@ -61,81 +61,100 @@ class InvalidLLMRequestError(Exception):
 
 
 def validate_request(request):
-    if (
-        "model" in request.keys()
-        and "provider" in request.keys()
-        and "input_tokens" in request.keys()
-        and "output_tokens" in request.keys()
-        and "latency" in request.keys()
-        and type(request["input_tokens"]) == int
-        and type(request["output_tokens"]) == int
-        and (type(request["latency"]) == int or type(request["latency"]) == float)
-        and request["input_tokens"] >= 0
-        and request["output_tokens"] >= 0
-        and validate_latency(request["latency"])
-    ):
-        logger.info("request valid")
-        return True
-    else:
-        logger.warning("invalid request")
+    required_fields = {"model", "provider", "input_tokens", "output_tokens", "latency"}
+
+    if not isinstance(request, dict):
+        logger.warning("Request must be a dictionary")
         return False
+
+    if not required_fields.issubset(request):
+        logger.warning("Request is missing required fields")
+        return False
+
+    if not isinstance(request["model"], str) or not request["model"].strip():
+        logger.warning("Model must be a non-empty string")
+        return False
+
+    if not isinstance(request["provider"], str) or not request["provider"].strip():
+        logger.warning("Provider must be a non-empty string")
+        return False
+
+    # type(...) is int mencegah bool dianggap sebagai integer
+    if type(request["input_tokens"]) is not int:
+        logger.warning("input_tokens must be an integer")
+        return False
+
+    if type(request["output_tokens"]) is not int:
+        logger.warning("output_tokens must be an integer")
+        return False
+
+    if request["input_tokens"] < 0 or request["output_tokens"] < 0:
+        logger.warning("Token counts cannot be negative")
+        return False
+
+    if type(request["latency"]) not in (int, float):
+        logger.warning("Latency must be numeric")
+        return False
+
+    return True
 
 
 def get_total_tokens(request):
-    total_token_processed = 0
     try:
-        logger.info("total tokens valid")
-        total_tokens = request["input_tokens"] + request["output_tokens"]
-        total_token_processed += total_tokens
-        return total_token_processed
-    except KeyError:
-        logger.error("error key error")
+        return request["input_tokens"] + request["output_tokens"]
+    except KeyError as error:
+        logger.error("Missing token field: %s", error)
         return None
-    except TypeError:
-        logger.error("error type error")
+    except TypeError as error:
+        logger.error("Token values have incompatible types: %s", error)
         return None
 
 
 def validate_latency(latency):
     if latency < 0:
-        logger.error("latency tidak valid")
         raise ValueError("Latency cannot be negative.")
     else:
         return True
 
 
 def process_request(request):
-    try:
-        if validate_request(request):
-            validate_latency(request["latency"])
-            total_tokens = get_total_tokens(request)
-            return total_tokens
-        else:
-            logger.warning("invalid request")
-            raise InvalidLLMRequestError
-    except (InvalidLLMRequestError, ValueError) as error:
-        return InvalidLLMRequestError
+    if not validate_request(request):
+        raise InvalidLLMRequestError("Request failed validation")
+
+    validate_latency(request["latency"])
+
+    total_tokens = get_total_tokens(request)
+    if total_tokens is None:
+        raise InvalidLLMRequestError("Unable to calculate total tokens")
+
+    logger.info("Request processed successfully")
+    return total_tokens
 
 
 def process_requests(requests):
     total_token_processed = 0
     valid_request = 0
     invalid_request = 0
-    total_requests = len(requests)
 
-    for request in requests:
-        try:
-            total_token_processed += process_request(request)
+    try:
+        for request in requests:
+            try:
+                tokens = process_request(request)
+            except (InvalidLLMRequestError, ValueError) as error:
+                invalid_request += 1
+                logger.warning("Request rejected: %s", error)
+                continue
+
             valid_request += 1
-        except InvalidLLMRequestError:
-            invalid_request += 1
-            logger.warning("invalid request")
-            continue
+            total_token_processed += tokens
 
-    logger.info(f"total requests:  {total_requests}")
-    logger.info(f"valid request: {valid_request}")
-    logger.info(f"invalid request: {invalid_request}")
-    logger.info(f"total token processed: {total_token_processed}")
+        logger.info("Total requests: %d", len(requests))
+        logger.info("Valid requests: %d", valid_request)
+        logger.info("Invalid requests: %d", invalid_request)
+        logger.info("Total tokens processed: %d", total_token_processed)
+
+    finally:
+        logger.info("Request processing finished")
 
 
 process_requests(llm_requests)
