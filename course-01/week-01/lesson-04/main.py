@@ -72,7 +72,7 @@ def validate_request(request):
         and (type(request["latency"]) == int or type(request["latency"]) == float)
         and request["input_tokens"] >= 0
         and request["output_tokens"] >= 0
-        and request['latency'] >= 0
+        and validate_latency(request["latency"])
     ):
         logger.info("request valid")
         return True
@@ -107,14 +107,14 @@ def validate_latency(latency):
 def process_request(request):
     try:
         if validate_request(request):
-                validate_latency(request["latency"])
-                total_tokens = get_total_tokens(request)
-                return total_tokens
+            validate_latency(request["latency"])
+            total_tokens = get_total_tokens(request)
+            return total_tokens
         else:
             logger.warning("invalid request")
             raise InvalidLLMRequestError
     except (InvalidLLMRequestError, ValueError) as error:
-        logger.warning("request gagal: %s", error)
+        return InvalidLLMRequestError
 
 
 def process_requests(requests):
@@ -130,12 +130,12 @@ def process_requests(requests):
         except InvalidLLMRequestError:
             invalid_request += 1
             logger.warning("invalid request")
-        continue
+            continue
 
     logger.info(f"total requests:  {total_requests}")
     logger.info(f"valid request: {valid_request}")
     logger.info(f"invalid request: {invalid_request}")
     logger.info(f"total token processed: {total_token_processed}")
-    
+
 
 process_requests(llm_requests)
