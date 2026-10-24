@@ -158,3 +158,9 @@ def process_requests(requests):
 
 
 process_requests(llm_requests)
+
+# Test KeyError: output_tokens tidak tersedia
+get_total_tokens({"input_tokens": 100})
+
+# Test TypeError: token berupa string
+get_total_tokens({"input_tokens": "100", "output_tokens": 50})
