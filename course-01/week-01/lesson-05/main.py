@@ -20,26 +20,29 @@ def fetch_todo(todo_id):
         data = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
         logger.warning("request timeout")
-        raise requests.exceptions.Timeout
+        raise
+    except requests.exceptions.ConnectionError:
+        logger.warning("connection error")
+        raise
     
     try: 
         data.raise_for_status()
     except requests.exceptions.HTTPError: 
         logger.warning("error HTTP ")
-        raise requests.exceptions.HTTPError
+        raise
     
     try:
         parsed_data = data.json()
     except json.JSONDecodeError:
         logger.warning("json decode error")
-        raise json.JSONDecodeError
+        raise
     
     try:
         final_data = Todo(**parsed_data)
     except ValidationError:
-        logger("validasi pydantic error")
-        raise ValidationError
+        logger.error("validasi pydantic error")
+        raise
     
     return final_data
-    
+
 print(fetch_todo(-1))
