@@ -1,7 +1,7 @@
 import requests
 import json
 import logging
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -18,17 +18,18 @@ def fetch_todo(todo_id):
     
     data = requests.get(url, timeout=5)
     
-    if data.status_code != 200:
+    try: 
         data.raise_for_status()
-
+    except requests.exceptions.HTTPError: 
+        logger.warning("error HTTP ")
     
     try:
         parsed_data = data.json()
-    except:
+    except json.JSONDecodeError:
         logger.warning("json decode error")
     
-    #final_data = Todo(**parsed_data)
+    final_data = Todo(**parsed_data)
     
-    print(parsed_data)
+    return final_data
     
-fetch_todo(1)
+print(fetch_todo(-1))
