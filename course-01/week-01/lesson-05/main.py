@@ -2,6 +2,7 @@ import requests
 import json
 import logging
 from pydantic import BaseModel, ValidationError
+import unittest
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -27,14 +28,14 @@ def fetch_todo(todo_id):
     
     try: 
         data.raise_for_status()
-    except requests.exceptions.HTTPError: 
-        logger.warning("error HTTP ")
+    except requests.exceptions.HTTPError as error: 
+        logger.warning("error HTTP " + error)
         raise
     
     try:
         parsed_data = data.json()
-    except json.JSONDecodeError:
-        logger.warning("json decode error")
+    except json.JSONDecodeError as error:
+        logger.warning("json decode error " + error)
         raise
     
     try:
@@ -44,5 +45,6 @@ def fetch_todo(todo_id):
         raise
     
     return final_data
+    
 
-print(fetch_todo(-1))
+print(fetch_todo(1))
