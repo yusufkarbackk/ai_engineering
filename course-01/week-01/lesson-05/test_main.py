@@ -3,6 +3,7 @@ from unittest.mock import patch, Mock
 import requests
 from main import fetch_todo, Todo
 from pydantic import ValidationError
+import json
 
 
 class TestFetchTodo(unittest.TestCase):
@@ -93,6 +94,24 @@ class TestFetchTodo(unittest.TestCase):
         with self.assertRaises(requests.exceptions.ConnectionError):
             fetch_todo(1)
 
+        mock_get.assert_called_once_with(
+            "https://jsonplaceholder.typicode.com/todos/1",
+            timeout=5,
+        )
+
+    @patch("main.requests.get")
+    def test_fetch_todo_invalid_json(self, mock_get):
+        mock_response = Mock()
+        mock_response.json.side_effect = json.JSONDecodeError(
+            "invalid JSON", "invalid json data", 0
+        )
+
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(json.JSONDecodeError):
+            fetch_todo(1)
+
+        # Pastikan request menggunakan timeout
         mock_get.assert_called_once_with(
             "https://jsonplaceholder.typicode.com/todos/1",
             timeout=5,
