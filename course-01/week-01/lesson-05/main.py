@@ -6,16 +6,17 @@ from pydantic import BaseModel, ValidationError
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class Todo(BaseModel):
     id: int
     userId: int
     title: str
     completed: bool
-    
+
+
 def fetch_todo(todo_id):
     url = "https://jsonplaceholder.typicode.com/todos/" + str(todo_id)
-    
-    
+
     try:
         data = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
@@ -24,26 +25,27 @@ def fetch_todo(todo_id):
     except requests.exceptions.ConnectionError:
         logger.warning("connection error")
         raise
-    
-    try: 
+
+    try:
         data.raise_for_status()
-    except requests.exceptions.HTTPError as error: 
+    except requests.exceptions.HTTPError as error:
         logger.warning("error HTTP: %s", error)
         raise
-    
+
     try:
         parsed_data = data.json()
     except json.JSONDecodeError as error:
         logger.warning("json decode error: %s ", error)
         raise
-    
+
     try:
         final_data = Todo(**parsed_data)
     except ValidationError:
         logger.error("validasi pydantic error")
         raise
-    
-    return final_data
-    
 
-print(fetch_todo(1))
+    return final_data
+
+
+if __name__ == "__main__":
+    print(fetch_todo(1))
