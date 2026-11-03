@@ -40,7 +40,7 @@ class TestFetchTodo(unittest.TestCase):
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
             "404 client error"
         )
-        
+
         mock_get.return_value = mock_response
 
         with self.assertRaises(requests.exceptions.HTTPError):
@@ -48,6 +48,18 @@ class TestFetchTodo(unittest.TestCase):
 
         mock_get.assert_called_once_with(
             "https://jsonplaceholder.typicode.com/todos/-1",
+            timeout=5,
+        )
+
+    @patch("main.requests.get")
+    def test_fetch_todo_timeout(self, mock_get):
+        mock_get.side_effect = requests.exceptions.Timeout("request timeout")
+
+        with self.assertRaises(requests.exceptions.Timeout):
+            fetch_todo(1)
+
+        mock_get.assert_called_once_with(
+            "https://jsonplaceholder.typicode.com/todos/1",
             timeout=5,
         )
 
