@@ -27,6 +27,8 @@ class TestFetchTodo(unittest.TestCase):
         self.assertIsInstance(result, Todo)
         self.assertEqual(result.id, 1)
         self.assertEqual(result.title, "delectus aut autem")
+        self.assertEqual(result.userId, 1)
+        self.assertEqual(result.completed, False)
 
         # Pastikan request menggunakan timeout
         mock_get.assert_called_once_with(
