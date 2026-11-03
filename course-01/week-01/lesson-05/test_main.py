@@ -86,6 +86,18 @@ class TestFetchTodo(unittest.TestCase):
             timeout=5,
         )
 
+    @patch("main.requests.get")
+    def test_fetch_todo_connection_error(self, mock_get):
+        mock_get.side_effect = requests.exceptions.ConnectionError("connection error")
+
+        with self.assertRaises(requests.exceptions.ConnectionError):
+            fetch_todo(1)
+
+        mock_get.assert_called_once_with(
+            "https://jsonplaceholder.typicode.com/todos/1",
+            timeout=5,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
