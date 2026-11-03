@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, Mock
 import requests
 from main import fetch_todo, Todo
+from pydantic import ValidationError
 
 
 class TestFetchTodo(unittest.TestCase):
@@ -58,6 +59,26 @@ class TestFetchTodo(unittest.TestCase):
         with self.assertRaises(requests.exceptions.Timeout):
             fetch_todo(1)
 
+        mock_get.assert_called_once_with(
+            "https://jsonplaceholder.typicode.com/todos/1",
+            timeout=5,
+        )
+
+    @patch("main.requests.get")
+    def test_fetch_todo_invalid_schema(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "userId": 1,
+            "id": 1,
+            "completed": False,
+        }
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(ValidationError):
+            fetch_todo(1)
+
+        # Pastikan request menggunakan timeout
         mock_get.assert_called_once_with(
             "https://jsonplaceholder.typicode.com/todos/1",
             timeout=5,
