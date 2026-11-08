@@ -38,6 +38,18 @@ class TestFetchEnv(unittest.TestCase):
             with self.assertRaises(ValueError):
                 get_config()
 
+    def test_fetch_env_timeout(self):
+        env = {
+            "API_BASE_URL": "https://jsonplaceholder.typicode.com",
+        }
+
+        with patch.dict(os.environ, env, clear=True):
+            result = get_config()
+
+        self.assertEqual(result["api_base_url"], "https://jsonplaceholder.typicode.com")
+        self.assertEqual(result["api_timeout"], 5)
+        self.assertIsInstance(result["api_timeout"], int)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,12 +3,12 @@ import os
 
 def get_config():
 
-    if os.getenv("API_BASE_URL") == "" or os.getenv("API_BASE_URL") == None:
+    if not os.getenv("API_BASE_URL"):
         raise ValueError
 
     api_base_url = os.getenv("API_BASE_URL")
 
-    if os.getenv("API_TIMEOUT") == None:
+    if os.getenv("API_TIMEOUT") is None:
         api_timeout = 5
     else:
         api_timeout = int(os.getenv("API_TIMEOUT"))
