@@ -64,7 +64,7 @@ class TestFetchEnv(unittest.TestCase):
                 result = get_config()
 
         self.assertIn(
-            "API_TIMEOUT tidak tersedia, menggunakan deafult 5", captured.output[0]
+            "API_TIMEOUT tidak ditemukan, menggunakan default 5", captured.output[0]
         )
         self.assertEqual(result["api_timeout"], 5)
         self.assertIsInstance(result["api_timeout"], int)
