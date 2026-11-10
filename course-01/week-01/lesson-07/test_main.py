@@ -20,15 +20,6 @@ class TestFetchEnv(unittest.TestCase):
         self.assertIn("config sukses", captured.output[0])
         self.assertEqual(result["api_timeout"], 3)
 
-    # def test_fetch_env_value_error(self):
-    #     env = {
-    #         "API_TIMEOUT": "3",
-    #     }
-
-    #     with patch.dict(os.environ, env, clear=True):
-    #         with self.assertRaises(ValueError):
-    #             get_config()
-
     def test_get_config_empty_base_url(self):
         env = {
             "API_BASE_URL": "",
