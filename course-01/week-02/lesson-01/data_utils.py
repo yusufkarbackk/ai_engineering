@@ -1,6 +1,6 @@
 def calculate_average(numbers):
     if len(numbers) < 1:
-        raise ZeroDivisionError("numbers kosong")
+        raise ValueError("numbers kosong")
     return sum(numbers) / len(numbers)
 
 

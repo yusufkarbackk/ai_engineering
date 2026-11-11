@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 from main import analyze_data
 import data_utils
 
@@ -15,13 +14,13 @@ class TestAnalyze(unittest.TestCase):
 
         result = data_utils.find_max([10, 20, 30, 40, 50])
 
-        self.assertEqual(result["maximum"], 50)
+        self.assertEqual(result, 50)
 
     def test_minimum(self):
 
         result = data_utils.find_min([10, 20, 30, 40, 50])
 
-        self.assertEqual(result["minimum"], 10)
+        self.assertEqual(result, 10)
 
     def test_analyze_data(self):
         result = analyze_data([10, 20, 30, 40, 50])
@@ -29,11 +28,8 @@ class TestAnalyze(unittest.TestCase):
         self.assertEqual(result, {"average": 30.0, "maximum": 50, "minimum": 10})
 
     def test_empty_numbers(self):
-        result = {"average": 30.0, "maximum": 50, "minimum": 10}
-
-        with patch.dict(result, clear=True):
-            with self.assertRaises(ValueError):
-                analyze_data([])
+        with self.assertRaises(ValueError):
+            analyze_data([])
 
 
 if __name__ == "__main__":
