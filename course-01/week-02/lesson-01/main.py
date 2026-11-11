@@ -5,17 +5,15 @@ def analyze_data(numbers):
     result = {}
 
     if len(numbers) < 1:
-        raise ValueError
+        raise ValueError("numbers kosong")
 
     average = calculate_average(numbers)
-    max = find_max(numbers)
-    min = find_min(numbers)
+    maximum = find_max(numbers)
+    minimum = find_min(numbers)
 
     result["average"] = average
-    result["maximum"] = max
-    result["minimum"] = min
-
-    print(result)
+    result["maximum"] = maximum
+    result["minimum"] = minimum
     return result
 
 
