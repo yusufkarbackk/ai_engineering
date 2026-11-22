@@ -51,6 +51,7 @@ class TestJson(unittest.TestCase):
 
             write_json_file(temp_file_path, json_data)
             self.assertTrue(os.path.exists(temp_file_path))
+            self.assertEqual(read_json_file(temp_file_path), json_data)
 
     def test_read_json_file(self):
 

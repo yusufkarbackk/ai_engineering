@@ -35,7 +35,7 @@ def read_json_file(file_path):
     except json.JSONDecodeError as e:
         raise json.JSONDecodeError(f"Invalid JSON syntax: {e.msg}", e.doc, e.pos) from e
     except FileNotFoundError as e:
-        raise json.JSONDecodeError(f"file not found: {e.msg}", e.doc, e.pos) from e
+        raise FileNotFoundError(f"file not found: {e.msg}", e.doc, e.pos) from e
 
 
 def write_json_file(file_path, data):
@@ -43,14 +43,8 @@ def write_json_file(file_path, data):
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
     except json.JSONDecodeError as e:
-        raise ("Invalid JSON syntax: ", e)
+        raise json.JSONDecodeError("Invalid JSON syntax: ", e)
     except FileNotFoundError as e:
-        raise ("File not found: ", e)
-
-    """
-    Persyaratan:
-        - read_json_file() membaca file JSON dan mengembalikan Python object.
-        - write_json_file() menyimpan Python object ke file JSON.
-        - Gunakan json.load() dan json.dump(), bukan loads() dan dumps() untuk kedua fungsi ini.
-        - Perhatikan error ketika file tidak ditemukan dan ketika isi JSON tidak valid.
-    """
+        raise FileNotFoundError("File not found: ", e)
+    except TypeError as e:
+        raise TypeError("serialization failed", e)
