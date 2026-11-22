@@ -70,7 +70,7 @@ class TestJson(unittest.TestCase):
             result = read_json_file(temp_file_path)
             self.assertEqual(result, json_data)
 
-    def test_read_invalid_json_filei(self):
+    def test_read_invalid_json_file(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_file_path = os.path.join(temp_dir, "corrupt.json")
 
